@@ -21,7 +21,7 @@ with st.sidebar:
     st.divider()
     st.info("Usuario: Beatriz\nCargo: Risk Preventionist")
 
-# --- MÓDULO 1: INSTRUCCIÓN IRL (Con Lista de Riesgos Solicitada) ---
+# --- MÓDULO 1: INSTRUCCIÓN IRL ---
 if opcion == "📝 Instrucción IRL (Art. 15)":
     st.header("Registro de Instrucción de Riesgos Laborales")
     with st.form("form_irl"):
@@ -29,10 +29,10 @@ if opcion == "📝 Instrucción IRL (Art. 15)":
         with c1: nombre = st.text_input("Nombre del Trabajador")
         with c2: rut = st.text_input("RUT")
         
-        cargo = st.text_input("Cargo / Puesto de Trabajo (Escriba manualmente)")
+        cargo = st.text_input("Cargo / Puesto de Trabajo")
         
-        st.subheader("Selección de Riesgos (Tickear los que apliquen)")
-        # Lista completa de riesgos que me pediste
+        # --- SECCIÓN DE RIESGOS ---
+        st.subheader("1. Selección de Riesgos (Tickear)")
         lista_riesgos = [
             "Caída al mismo nivel", "Exposición a ruido", "Humos metálicos", 
             "Humos de soldadura", "Exposición radiación UV", "Proyección de partícula", 
@@ -41,25 +41,32 @@ if opcion == "📝 Instrucción IRL (Art. 15)":
             "Aprisionamiento", "Corte", "Carga suspendidas", "Resbalamiento", 
             "Golpeado por", "Corte por hoja", "Riesgo de incendio", "Shock eléctrico"
         ]
+        riesgos_sel = st.multiselect("Riesgos Identificados:", lista_riesgos)
         
-        riesgos_seleccionados = st.multiselect("Riesgos Identificados:", lista_riesgos)
+        # --- SECCIÓN DE MEDIDAS (Nueva lista solicitada) ---
+        st.subheader("2. Medidas Preventivas (Tickear)")
+        lista_medidas = [
+            "Uso del bloqueador solar", "Uso de guante apropiado para la actividad", 
+            "Uso del respirador 2 vías con filtro mixto", "Uso del protector auditivo", 
+            "Atento a las condiciones del entorno", "No exponer extremidades a la línea de fuego", 
+            "No exponerse a la línea de fuego", "Uso de careta de soldador", 
+            "Uso de careta facial", "Uso de lentes apropiados", 
+            "No levantar pesos superiores a 25 kg hombres y 20 kg mujeres", 
+            "No usar teléfono al subir o bajar por las escalas", 
+            "Solo personal autorizado podrá intervenir tableros", 
+            "Choque", "Colisión", "Atropello"
+        ]
+        medidas_sel = st.multiselect("Medidas de Control Aplicadas:", lista_medidas)
         
-        otros_riesgos = st.text_input("Otros riesgos no listados (opcional):")
+        # Espacio manual por si falta algo
+        otros_detalles = st.text_input("Otras observaciones o medidas adicionales:")
         
-        medidas = st.text_area("Medidas Preventivas Sugeridas", 
-            "Uso de EPP completo, Hidratación constante, Bloqueador solar, Pausas activas, Inspección de herramientas.")
-            
         apto = st.checkbox("Certifico que el trabajador cuenta con salud compatible para el puesto.")
         
         generar = st.form_submit_button("GENERAR Y DESCARGAR ACTA")
 
-    if generar and nombre and rut and riesgos_seleccionados and apto:
+    if generar and nombre and rut and riesgos_sel and medidas_sel and apto:
         st.success(f"✅ Registro IRL generado para {nombre}")
-        
-        # Combinar riesgos de la lista con los manuales
-        todos_los_riesgos = ", ".join(riesgos_seleccionados)
-        if otros_riesgos:
-            todos_los_riesgos += f", {otros_riesgos}"
         
         # Formato del acta para descarga
         acta_texto = f"""
@@ -73,14 +80,18 @@ if opcion == "📝 Instrucción IRL (Art. 15)":
         RUT: {rut}
         Cargo: {cargo}
         
-        RIESGOS IDENTIFICADOS (TICKEO):
-        {todos_los_riesgos}
+        RIESGOS IDENTIFICADOS:
+        {", ".join(riesgos_sel)}
         
-        MEDIDAS DE CONTROL APLICADAS:
-        {medidas}
+        MEDIDAS DE CONTROL COMPROMETIDAS:
+        {", ".join(medidas_sel)}
         
-        VALIDACIÓN:
-        El trabajador ha sido instruido sobre los riesgos y medidas de control.
+        OBSERVACIONES ADICIONALES:
+        {otros_detalles if otros_detalles else "Ninguna."}
+        
+        VALIDACIÓN LEGAL:
+        El trabajador declara haber recibido instrucción sobre los riesgos 
+        y medidas preventivas (Art. 15 Dec. 44).
         Estado: Salud Compatible Validada.
         ---------------------------------------
         Emitido por: Beatriz - Risk Preventionist
@@ -93,12 +104,11 @@ if opcion == "📝 Instrucción IRL (Art. 15)":
             mime="text/plain"
         )
     elif generar:
-        st.error("⚠️ Falta información crítica (Nombre, RUT, Riesgos o Salud).")
+        st.error("⚠️ Error: Debe completar Nombre, RUT, seleccionar al menos un Riesgo, una Medida y marcar la casilla de Salud.")
 
-# --- Mantenemos los otros módulos sin cambios para no borrar nada ---
+# --- Módulos restantes (se mantienen igual) ---
 elif opcion == "🔍 Investigación de Accidentes":
     st.header("Análisis e Investigación de Accidentes")
-    st.info("Módulo operativo para reporte de eventos.")
 
 elif opcion == "⚠️ Reporte de Hallazgos":
     st.header("Reporte de Hallazgos en Terreno")
